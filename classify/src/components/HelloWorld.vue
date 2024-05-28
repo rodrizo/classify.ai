@@ -1,159 +1,122 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <v-container class="fill-height">
+  <v-container>
     <v-responsive
       class="align-centerfill-height mx-auto"
-      max-width="900"
+      max-width="700"
     >
       <v-img
-        class="mb-4"
+        class="mb-1 mt-10"
         height="150"
         src="@/assets/logo.png"
       />
 
       <div class="text-center">
-        <div class="text-body-2 font-weight-light mb-1">Bienvenido a</div>
+        <div class="text-body-1 font-weight-bold mb-1">Bienvenido a</div>
 
         <h1 class="text-h2 font-weight-bold">Classify.ai</h1>
       </div>
 
       <div class="py-4" />
-
+      
       <v-row>
         <v-col cols="12">
           <v-card
             class="py-4"
-            color="surface-variant"
-            prepend-icon="mdi-rocket-launch-outline"
+            color="surface-light"
             rounded="lg"
-            variant="outlined"
+            variant="elevated"
           >
-
-            <template #title>
-              <h2 class="text-h5 font-weight-bold">Iniciemos</h2>
-            </template>
-
-            <template #subtitle>
-              <div class="text-subtitle-1">
-                Ingresa la palabra a clasificar
-              </div>
-            </template>
-            
-            <template #text>
-              <div>
-                <v-text-field label="Label" variant="outlined"></v-text-field>
-              </div>
-            </template>
-
-            <v-overlay
-              opacity=".12"
-              scrim="primary"
-              contained
-              model-value
-              persistent
-            />
-          </v-card>
-        </v-col>
-
-        <v-col cols="6">
-          <v-card
-            append-icon="mdi-open-in-new"
-            class="py-4"
-            color="surface-variant"
-            href="https://vuetifyjs.com/"
-            prepend-icon="mdi-text-box-outline"
-            rel="noopener noreferrer"
-            rounded="lg"
-            subtitle="Learn about all things Vuetify in our documentation."
-            target="_blank"
-            title="Documentation"
-            variant="text"
-          >
-            <v-overlay
-              opacity=".06"
-              scrim="primary"
-              contained
-              model-value
-              persistent
-            />
-          </v-card>
-        </v-col>
-
-        <v-col cols="6">
-          <v-card
-            append-icon="mdi-open-in-new"
-            class="py-4"
-            color="surface-variant"
-            href="https://vuetifyjs.com/introduction/why-vuetify/#feature-guides"
-            prepend-icon="mdi-star-circle-outline"
-            rel="noopener noreferrer"
-            rounded="lg"
-            subtitle="Explore available framework Features."
-            target="_blank"
-            title="Features"
-            variant="text"
-          >
-            <v-overlay
-              opacity=".06"
-              scrim="primary"
-              contained
-              model-value
-              persistent
-            />
-          </v-card>
-        </v-col>
-
-        <v-col cols="6">
-          <v-card
-            append-icon="mdi-open-in-new"
-            class="py-4"
-            color="surface-variant"
-            href="https://vuetifyjs.com/components/all"
-            prepend-icon="mdi-widgets-outline"
-            rel="noopener noreferrer"
-            rounded="lg"
-            subtitle="Discover components in the API Explorer."
-            target="_blank"
-            title="Components"
-            variant="text"
-          >
-            <v-overlay
-              opacity=".06"
-              scrim="primary"
-              contained
-              model-value
-              persistent
-            />
-          </v-card>
-        </v-col>
-
-        <v-col cols="6">
-          <v-card
-            append-icon="mdi-open-in-new"
-            class="py-4"
-            color="surface-variant"
-            href="https://discord.vuetifyjs.com"
-            prepend-icon="mdi-account-group-outline"
-            rel="noopener noreferrer"
-            rounded="lg"
-            subtitle="Connect with Vuetify developers."
-            target="_blank"
-            title="Community"
-            variant="text"
-          >
-            <v-overlay
-              opacity=".06"
-              scrim="primary"
-              contained
-              model-value
-              persistent
-            />
+            <v-card-title>
+              <h4 class="text font-weight-bold">Ingresa la frase a clasificar </h4>
+            </v-card-title>
+            <v-form>
+              <v-card-text>
+                <v-text-field
+                  v-model="text"
+                  :loading="loading"
+                  append-inner-icon="mdi-magnify"
+                  label="Ingresa tu frase acá..."
+                  variant="solo"
+                  single-line
+                  type="text"
+                  @click:append-inner="onClick()"
+                  ></v-text-field>
+              </v-card-text>
+            </v-form>
+            <div class="text-center">
+              <v-chip :ripple="false" link size="x-large">
+                <span v-if="lastRecord.classification === 'Comentario positivo'">😃</span>
+                <span v-else>🙁</span>
+              </v-chip>
+            </div>
           </v-card>
         </v-col>
       </v-row>
+
+      <DataTable :results="texts" />
+      
     </v-responsive>
   </v-container>
 </template>
 
-<script setup>
-  //
+<script>
+
+  import DataTable from './DataTable.vue';
+
+  export default {
+    components: {
+      DataTable,
+    },
+    computed: {
+      lastRecord() {
+        return this.texts[this.texts.length - 1];
+      },
+    },
+    data: () => ({
+      loaded: false,
+      loading: false,
+      text: '',
+      emotion: '',
+      emoji: '',
+      id: 1,
+      texts: [{id: '', text: '', classification: '', emoji: ''}],
+    }),
+    methods: {
+      generateId() {
+        return this.id++;
+      },
+      async onClick () {
+        this.loading = true
+
+        setTimeout(() => {
+          this.loading = false
+          this.loaded = true
+        }, 2000)
+
+        await fetch('https://0712bf0e-f0df-4299-850c-16e09f87b347.mock.pstmn.io/',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          // body: JSON.stringify(this.text)
+        }).then(response => response.json()).then(x => {
+          this.emotion = x;
+          // console.log(x)
+        });
+
+        this.emoji = this.emotion.resultado === 'positivo' ? '😃' : '🙁';
+
+        const newId = this.generateId();
+        
+        this.texts.push({ id: newId, text: this.text, classification: 'Comentario ' + this.emotion.resultado, emoji: this.emoji });
+        // this.text = "";
+        // console.log(this.texts)
+
+        this.text = '';
+
+      },
+    },
+  }
 </script>

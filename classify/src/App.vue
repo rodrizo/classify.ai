@@ -2,9 +2,8 @@
   <v-app>
     <v-main>
       <HelloWorld />
+      <!-- <Test /> -->
     </v-main>
-
-    <AppFooter />
   </v-app>
 </template>
 

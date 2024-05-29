@@ -6,9 +6,9 @@
       max-width="700"
     >
       <v-img
-        class="mb-1 mt-10"
+        class="mb-10 mt-10"
         height="150"
-        src="@/assets/logo.png"
+        src="@/assets/tetris.png"
       />
 
       <div class="text-center">
@@ -18,7 +18,7 @@
       </div>
 
       <div class="py-4" />
-      
+
       <v-row>
         <v-col cols="12">
           <v-card
@@ -55,7 +55,7 @@
       </v-row>
 
       <DataTable :results="texts" />
-      
+
     </v-responsive>
   </v-container>
 </template>
@@ -95,6 +95,7 @@
         }, 2000)
 
         await fetch('https://0712bf0e-f0df-4299-850c-16e09f87b347.mock.pstmn.io/',
+        // await fetch('http://127.0.0.1:5000/analyze',
         {
           method: 'POST',
           headers: {
@@ -109,7 +110,7 @@
         this.emoji = this.emotion.resultado === 'positivo' ? '😃' : '🙁';
 
         const newId = this.generateId();
-        
+
         this.texts.push({ id: newId, text: this.text, classification: 'Comentario ' + this.emotion.resultado, emoji: this.emoji });
         // this.text = "";
         // console.log(this.texts)
